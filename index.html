@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Lab Transfer Konsep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #EEF3F1; --paper-card: #FFFFFF; --ink: #22362F; --ink-soft: #4E645C;
+    --teal: #2F8F73; --teal-dark: #1F6B55; --amber: #E8A33D; --amber-dark: #C97F1F;
+    --coral: #E2665D; --coral-dark: #A6403A; --line: #D3E1DB;
+    --hint-bg: #FFF7E9; --hint-border: #F0DBA3; --radius: 20px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--paper);
+    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 28px 28px;
+    color: var(--ink); font-family: 'Nunito', sans-serif; font-size: 19px; line-height: 1.5;
+    min-height: 100vh; padding: 18px 16px 60px; -webkit-tap-highlight-color: transparent;
+  }
+  .wrap{ max-width: 480px; margin: 0 auto; }
+  header{ text-align:center; margin-bottom: 20px; }
+  .eyebrow{ font-family:'Space Mono', monospace; font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal-dark); background: #DCEFE7; display:inline-block; padding: 5px 12px; border-radius: 999px; margin-bottom: 10px; }
+  h1{ font-family:'Baloo 2', sans-serif; font-weight: 800; font-size: 30px; margin: 0 0 6px; }
+  .sub{ color: var(--ink-soft); font-size: 17px; margin: 0; }
+
+  .level-track{ display:flex; gap:8px; margin: 20px 0 22px; }
+  .level-badge{ flex:1; text-align:center; padding: 10px 4px; border-radius: 14px; border: 2px solid var(--line); background: var(--paper-card); }
+  .level-badge .lv-num{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size: 15px; color: var(--ink-soft); }
+  .level-badge .lv-name{ font-size: 11px; color: var(--ink-soft); font-weight:700; margin-top:2px; }
+  .level-badge.current{ border-color: var(--teal); box-shadow: 0 0 0 3px #DCEFE7; }
+  .level-badge.passed-1{ border-color: var(--teal); background:#E4F3ED; }
+  .level-badge.passed-2{ border-color: var(--amber); background:#FBEED9; }
+  .level-badge.passed-3{ border-color: var(--amber-dark); background:#F7E3C8; }
+  .level-badge.failed{ border-color: var(--coral); background:#FBE9E7; }
+  .level-badge.passed-1 .lv-num, .level-badge.passed-2 .lv-num, .level-badge.passed-3 .lv-num{ color: var(--ink); }
+  .level-badge.failed .lv-num{ color: var(--coral-dark); }
+
+  .card{ background: var(--paper-card); border-radius: var(--radius); padding: 22px 20px 24px; box-shadow: 0 2px 0 var(--line), 0 10px 24px -18px rgba(34,54,47,0.35); border: 1px solid var(--line); margin-bottom: 16px; }
+  .tag{ font-family:'Space Mono', monospace; font-size: 13px; color: var(--teal-dark); background: #E7F3EE; display:inline-block; padding: 4px 10px; border-radius: 8px; margin-bottom: 12px; }
+  .tag.retry{ color: var(--amber-dark); background: #FBEED9; }
+  .card h2{ font-family:'Baloo 2', sans-serif; font-size: 22px; margin: 0 0 12px; line-height:1.35; }
+  .visual-box{ background: #F3F8F6; border: 1px dashed #B9D6C9; border-radius: 14px; padding: 16px; font-family:'Space Mono', monospace; font-size: 17px; text-align:center; margin-bottom: 12px; }
+  .visual-box.story{ font-family:'Nunito',sans-serif; text-align:left; font-size:18px; }
+  .prompt-text{ font-size: 17px; font-weight: 700; margin: 0 0 18px; }
+  label.field-label{ display:block; font-weight: 700; font-size: 16px; margin-bottom: 8px; color: var(--ink-soft); }
+  input[type="text"]{ width: 100%; font-family:'Nunito', sans-serif; font-size: 20px; padding: 14px 16px; border-radius: 14px; border: 2px solid var(--line); background: var(--paper); color: var(--ink); margin-bottom: 20px; }
+  input[type="text"]:focus{ outline:none; border-color: var(--teal); }
+  input[type="number"].ans-input{ width: 100%; font-family:'Space Mono', monospace; font-size: 24px; padding: 14px 16px; border-radius: 14px; border: 2px solid var(--line); background: var(--paper); color: var(--ink); margin-bottom: 16px; }
+  input[type="number"].ans-input:focus{ outline:none; border-color: var(--teal); }
+  input[type="number"].ans-input:disabled{ opacity:.5; }
+  .confidence{ display:flex; justify-content: space-between; gap: 6px; margin-bottom: 22px; }
+  .conf-btn{ flex:1; background: var(--paper); border: 2px solid var(--line); border-radius: 14px; padding: 10px 4px 8px; font-size: 26px; text-align:center; cursor:pointer; transition: transform .12s ease, border-color .12s ease, background .12s ease; }
+  .conf-btn small{ display:block; font-size: 11px; font-weight:700; color: var(--ink-soft); margin-top:2px; }
+  .conf-btn.selected{ border-color: var(--teal); background: #E4F3ED; transform: translateY(-2px); }
+  .remedial-banner{ background:#FFF7E9; border:1px solid var(--hint-border); border-radius:14px; padding:6px 14px; margin-bottom:14px; text-align:center; font-family:'Space Mono',monospace; font-size:13px; color:#8A5F16; font-weight:700; }
+  .teaching-box{ background:#F3F8F6; border:1px solid #B9D6C9; border-radius:14px; padding:18px; margin-bottom:20px; font-size:16px; line-height:1.7; }
+  .teaching-box .th{ font-family:'Baloo 2',sans-serif; font-size:17px; margin-bottom:10px; color:var(--teal-dark); }
+  .concept-box{ background:#F3F8F6; border:1px solid #B9D6C9; border-radius:14px; padding:16px; margin-bottom:18px; }
+  .concept-box .concept-q{ font-weight:700; font-size:16px; margin-bottom:10px; }
+  .concept-options{ display:flex; flex-direction:column; gap:8px; }
+  .concept-btn{ background:#fff; border:2px solid var(--line); border-radius:12px; padding:11px 14px; font-size:16px; font-weight:700; text-align:left; cursor:pointer; color:var(--ink); }
+  .concept-btn:disabled{ cursor:default; }
+  .concept-btn.correct-reveal{ border-color:var(--teal); background:#E4F3ED; }
+  .concept-btn.wrong-reveal{ border-color:var(--coral); background:#FBE9E7; }
+  .concept-feedback{ margin-top:10px; font-size:15px; padding:10px 12px; border-radius:10px; }
+  .concept-feedback.ok{ background:#E4F3ED; color:var(--teal-dark); }
+  .concept-feedback.no{ background:#FBE9E7; color:var(--coral-dark); }
+  .concept-match-list{ background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-bottom: 18px; }
+  .concept-match-list h3{ font-family:'Baloo 2', sans-serif; font-size: 18px; margin: 0 0 12px; }
+  .concept-match-item{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); font-size:14px; gap:10px; }
+  .concept-match-item:last-child{ border-bottom:none; }
+  .concept-match-item .match-pill{ font-family:'Space Mono',monospace; font-size:11px; font-weight:700; padding:4px 9px; border-radius:999px; white-space:nowrap; }
+  .match-pill.both-ok{ background:#E4F3ED; color:var(--teal-dark); }
+  .match-pill.proc-only{ background:#FBEED9; color:var(--amber-dark); }
+  .match-pill.concept-only{ background:#DCEFE7; color:var(--teal-dark); }
+  .match-pill.both-no{ background:#FBE9E7; color:var(--coral-dark); }
+  .match-pill.skip{ background:#EEF3F1; color:var(--ink-soft); }
+  .options-list{ display:flex; flex-direction:column; gap: 10px; margin-bottom: 18px; }
+  .options-list.disabled{ opacity: 0.45; pointer-events: none; }
+  .option-btn{ display:flex; align-items:center; gap: 12px; background: var(--paper); border: 2px solid var(--line); border-radius: 14px; padding: 14px 16px; font-family:'Space Mono', monospace; font-size: 20px; font-weight:700; cursor:pointer; text-align:left; color: var(--ink); transition: border-color .15s ease, background .15s ease; width:100%; }
+  .option-btn .radio{ width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); flex-shrink:0; background:#fff; }
+  .option-btn:not(:disabled):active{ transform: scale(0.98); }
+  .option-btn.picked{ border-color: var(--teal); background: #E4F3ED; }
+  .option-btn.picked .radio{ border-color: var(--teal); background: var(--teal); box-shadow: inset 0 0 0 4px #E4F3ED; }
+  .option-btn.correct-reveal{ border-color: var(--teal); background: #E4F3ED; }
+  .option-btn.wrong-reveal{ border-color: var(--coral); background: #FBE9E7; }
+  .option-btn:disabled{ cursor: default; }
+  button.primary{ width:100%; font-family:'Baloo 2', sans-serif; font-weight: 700; font-size: 20px; color: #fff; background: var(--teal); border: none; border-radius: 14px; padding: 16px; cursor:pointer; transition: background .15s ease, transform .1s ease; }
+  button.primary.retry-btn{ background: var(--amber-dark); }
+  button.primary:disabled{ background: #B9CFC6; cursor:not-allowed; }
+  button.primary:not(:disabled):active{ transform: scale(0.98); }
+  button.ghost{ width:100%; font-family:'Baloo 2', sans-serif; font-weight: 700; font-size: 18px; color: var(--teal-dark); background: transparent; border: 2px solid var(--teal); border-radius: 14px; padding: 13px; cursor:pointer; margin-top: 10px; }
+  .feedback{ border-radius: 14px; padding: 16px; margin-bottom: 12px; font-weight: 700; font-size: 17px; display:flex; align-items:flex-start; gap: 10px; }
+  .feedback.ok{ background:#E4F3ED; color: var(--teal-dark); }
+  .feedback.no{ background:#FBE9E7; color: var(--coral-dark); }
+  .feedback .emoji{ font-size: 26px; flex-shrink:0; }
+  .diagnosis-box{ background: #FFF7E9; border: 1px solid var(--hint-border); border-radius: 14px; padding: 14px 16px; margin-bottom: 16px; font-size: 16px; font-weight: 400; }
+  .diagnosis-box strong{ color:#8A5F16; display:block; margin-bottom:4px; }
+  .explain-box{ background: #F3F8F6; border: 1px solid #B9D6C9; border-radius: 14px; padding: 16px; margin-bottom: 16px; font-size: 16px; }
+  .explain-box strong{ color: var(--teal-dark); }
+  .level-up-box{ background:#E4F3ED; border:1px solid #BEE0D2; border-radius:14px; padding:14px 16px; margin-bottom:16px; font-size:15px; color:var(--teal-dark); }
+  .score-row{ display:flex; gap: 12px; margin-bottom: 18px; }
+  .score-box{ flex:1; background: var(--paper-card); border: 1px solid var(--line); border-radius: 16px; padding: 16px 10px; text-align:center; }
+  .score-box .num{ font-family:'Space Mono', monospace; font-size: 22px; font-weight:700; color: var(--teal-dark); display:block; }
+  .score-box .lbl{ font-size: 11px; color: var(--ink-soft); font-weight:700; margin-top: 4px; display:block; }
+  .level-result-card{ background:#FFF7E9; border:1px solid var(--hint-border); border-radius: var(--radius); padding:22px 20px; text-align:center; margin-bottom:18px; }
+  .level-result-card .lv-big{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:34px; color:#8A5F16; }
+  .level-result-card .lv-desc{ font-size:16px; color: var(--ink); margin-top:6px; }
+  .journey{ background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 18px; margin-bottom: 18px; }
+  .journey h3{ font-family:'Baloo 2', sans-serif; font-size: 18px; margin: 0 0 14px; }
+  .journey-item{ display:flex; justify-content:space-between; align-items:center; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .journey-item:last-child{ border-bottom:none; }
+  .journey-item .status-pill{ font-family:'Space Mono',monospace; font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; }
+  .status-pill.ok1{ background:#E4F3ED; color:var(--teal-dark); }
+  .status-pill.ok2{ background:#FBEED9; color:var(--amber-dark); }
+  .status-pill.fail{ background:#FBE9E7; color:var(--coral-dark); }
+  .status-pill.skip{ background:#EEF3F1; color:var(--ink-soft); }
+  .misconception-list{ background: var(--paper-card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-bottom: 18px; }
+  .misconception-list h3{ font-family:'Baloo 2', sans-serif; font-size: 18px; margin: 0 0 12px; }
+  .misconception-item{ border-left: 3px solid var(--coral); background: #FBF6F5; border-radius: 0 10px 10px 0; padding: 10px 14px; margin-bottom: 10px; font-size: 15px; }
+  .misconception-item strong{ display:block; font-size: 14px; color: var(--coral-dark); margin-bottom: 2px; }
+  .insight{ background: var(--hint-bg); border: 1px solid var(--hint-border); border-radius: var(--radius); padding: 20px; margin-bottom: 18px; }
+  .insight h3{ font-family:'Baloo 2', sans-serif; font-size: 18px; margin: 0 0 10px; color: #8A5F16; }
+  .insight p{ margin: 0 0 8px; font-size: 16px; } .insight p:last-child{ margin-bottom:0; }
+  .send-status{ text-align:center; font-size: 14px; color: var(--ink-soft); margin: 0 0 16px; padding: 10px; border-radius: 10px; background: #F3F8F6; }
+  .send-status.ok{ color: var(--teal-dark); background:#E4F3ED; }
+  .send-status.warn{ color: var(--coral-dark); background:#FBE9E7; }
+  footer{ text-align:center; color: var(--ink-soft); font-size: 13px; margin-top: 22px; }
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Math Concept Transfer Lab</span>
+    <h1>Yuk, Cek Pemahamanmu! 🔍</h1>
+    <p class="sub">Materi: Persamaan Linear Satu Variabel</p>
+  </header>
+
+  <div class="level-track hidden" id="levelTrack"></div>
+  <div id="questionArea"></div>
+
+  <section id="results" class="hidden">
+    <div id="sendStatus" class="send-status">Mengirim hasil ke guru...</div>
+
+    <div class="level-result-card">
+      <div class="lv-big" id="finalLevelBig">Level 1</div>
+      <div class="lv-desc" id="finalLevelDesc">-</div>
+    </div>
+
+    <div class="journey">
+      <h3>🪜 Perjalanan Levelmu</h3>
+      <div id="journeyItems"></div>
+    </div>
+
+    <div class="concept-match-list">
+      <h3>🧠 Paham Konsep vs Hafal Prosedur</h3>
+      <div id="conceptMatchItems"></div>
+    </div>
+
+    <div class="misconception-list hidden" id="misconceptionBox">
+      <h3>🔎 Kesalahan Berpikir yang Terdeteksi</h3>
+      <div id="misconceptionItems"></div>
+    </div>
+
+    <div class="insight">
+      <h3>💡 Yang Perlu Kamu Lakukan</h3>
+      <div id="insightText"><p>Menyusun rekomendasi...</p></div>
+    </div>
+    <button class="ghost" onclick="location.reload()">Ulangi dari Awal</button>
+  </section>
+
+  <footer>Math Concept Transfer Lab · Kelas VII</footer>
+</div>
+
+<script>
+// =====================================================================
+const GAS_URL = "https://script.google.com/macros/s/AKfycbztjjzxXKitMytoVja_O0REr7GeyCP4rsk-d_p53_ls0eQ4RyZHxp6-PVHyEtLiJgckAg/exec";
+
+// Bank angka (a,b,c). Level 1-3 pakai bentuk ax+b=c (representasi beda).
+// Level 4 pakai bentuk ax-b=c (struktur beda) + kalimat abstrak, sebagai
+// tantangan transfer paling tinggi.
+const POOL = [
+  {a:2,b:4,c:10}, {a:2,b:4,c:14}, {a:2,b:8,c:20},
+  {a:2,b:6,c:16}, {a:2,b:10,c:24}, {a:2,b:6,c:20}
+];
+const STORY_ITEMS = [
+  {actor:'Dedi', itemA:'buku gambar', itemB:'pensil'},
+  {actor:'Wati', itemA:'tempat pensil', itemB:'buku tulis'},
+  {actor:'Arya', itemA:'gantungan kunci', itemB:'botol minum'},
+  {actor:'Sari', itemA:'penghapus', itemB:'spidol'},
+  {actor:'Bima', itemA:'stiker', itemB:'buku catatan'},
+  {actor:'Nadia', itemA:'jepit rambut', itemB:'tempat makan'}
+];
+
+const LEVELS = [
+  { id:1, key:'simbolik', op:'add', tag:'Level 1 · Simbolik', shortName:'Simbolik' },
+  { id:2, key:'cerita', op:'add', tag:'Level 2 · Soal Cerita', shortName:'Cerita' },
+  { id:3, key:'visual', op:'add', tag:'Level 3 · Visual / Neraca', shortName:'Visual' },
+  { id:4, key:'lanjutan', op:'subtract', tag:'Level 4 · Tantangan Transfer', shortName:'Tantangan' }
+];
+
+const faces = [
+  {e:"😵", t:"Ragu"}, {e:"😕", t:"Kurang"}, {e:"🙂", t:"Cukup"}, {e:"😃", t:"Yakin"}, {e:"🤩", t:"Sangat Yakin"}
+];
+
+const FEEDBACK_TEMPLATES = {
+  forgot_divide: {
+    simbolik: 'Langkah menguranginya sudah benar, tapi kamu lupa membagi hasilnya dengan angka di depan x (koefisien). Angka di depan x berarti "sebanyak itu x dijumlahkan", jadi hasil pengurangan tadi harus dibagi lagi.',
+    cerita: 'Kamu sudah benar mengurangi total uang dengan harga barang lain, tapi lupa membagi hasilnya dengan banyaknya barang yang harganya sama. Jawabanmu tadi masih harga GABUNGAN beberapa barang, bukan harga satu barang.',
+    visual: 'Kamu sudah benar mengurangi beban yang diketahui, tapi lupa membagi hasilnya dengan banyaknya balok. Hasil pengurangan tadi adalah berat SEMUA balok, bukan berat satu balok.',
+    lanjutan: 'Kamu sudah benar menjumlahkan, tapi lupa membagi hasilnya dengan angka pengali. Hasil penjumlahan tadi masih untuk SEMUA kelipatan bilangan itu, bukan bilangan aslinya.'
+  },
+  wrong_order: {
+    simbolik: 'Sepertinya kamu membagi dulu sebelum mengurangi. Urutan yang benar: kurangi dulu angka yang dijumlahkan pada suku x, baru hasilnya dibagi dengan koefisien x.',
+    cerita: 'Sepertinya kamu membagi total uang dulu sebelum mengurangi harga barang lain. Urutan yang benar: kurangi dulu total dengan harga barang lain, baru hasilnya dibagi banyaknya barang yang harganya sama.',
+    visual: 'Sepertinya kamu membagi beban total dulu sebelum mengurangi beban yang diketahui. Urutan yang benar: kurangi dulu beban total dengan beban yang diketahui, baru hasilnya dibagi banyaknya balok.',
+    lanjutan: 'Sepertinya kamu membagi dulu sebelum menjumlahkan. Urutan yang benar: jumlahkan dulu angka yang dikurangkan tadi, baru hasilnya dibagi dengan angka pengali.'
+  },
+  added: {
+    simbolik: 'Sepertinya kamu menjumlahkan, padahal seharusnya mengurangi. Untuk memindahkan angka ke sisi lain, gunakan operasi kebalikannya: karena di soal angkanya dijumlahkan (+), saat dipindah angka itu harus dikurangi (-).',
+    cerita: 'Sepertinya kamu menjumlahkan harga barang lain ke total, padahal seharusnya dikurangi. Harga barang lain itu sudah termasuk di dalam total, jadi untuk mencarinya harus dikurangkan, bukan ditambahkan.',
+    visual: 'Sepertinya kamu menjumlahkan beban yang diketahui ke beban total, padahal seharusnya dikurangi. Beban yang diketahui itu sudah termasuk di dalam beban total, jadi harus dikurangkan.'
+  },
+  wrong_sign: {
+    lanjutan: 'Sepertinya kamu mengurangi, padahal soal ini menggunakan operasi KALI lalu KURANG. Untuk mencari bilangan awal, lakukan kebalikannya: tambahkan dulu angka yang dikurangkan tadi, baru bagi dengan angka pengalinya. Jangan langsung meniru pola soal sebelumnya — baca dulu operasi apa yang dipakai di soal ini.'
+  }
+};
+const CONCEPT_OPTIONS = ['Menambah', 'Mengurangi', 'Mengalikan', 'Membagi'];
+const CONCEPT_TEMPLATES = {
+  add: {
+    correct: 'Mengurangi',
+    feedbackCorrect: 'Betul! Karena angkanya dijumlahkan (+) pada suku yang mengandung variabel, cara menghilangkannya adalah operasi kebalikannya: mengurangi kedua sisi.',
+    feedbackWrong: 'Coba lihat lagi: angka itu DIJUMLAHKAN pada suku yang mengandung variabel. Untuk menghilangkannya dari satu sisi, kita pakai operasi KEBALIKANNYA — yaitu mengurangi kedua sisi dengan angka yang sama.'
+  },
+  subtract: {
+    correct: 'Menambah',
+    feedbackCorrect: 'Betul! Karena angkanya DIKURANGKAN dari hasil kali, cara menghilangkannya adalah operasi kebalikannya: menambah kedua sisi.',
+    feedbackWrong: 'Coba lihat lagi: angka itu DIKURANGKAN dari hasil kali. Untuk menghilangkannya, kita pakai operasi KEBALIKANNYA — yaitu menambah kedua sisi dengan angka yang sama.'
+  }
+};
+const REMEDIAL_VARIANT = {a:2, b:2, c:6}; // angka sengaja dibuat lebih kecil/sederhana untuk pembelajaran ulang
+const TEACHING_EXAMPLES = {
+  simbolik: '<strong>Contoh:</strong> 2x + 4 = 10<br><br>' +
+    '<strong>Langkah 1</strong> — Angka 4 dijumlahkan ke suku x, jadi hilangkan dengan mengurangi kedua sisi dengan 4:<br>2x + 4 - 4 = 10 - 4 &nbsp;→&nbsp; 2x = 6<br><br>' +
+    '<strong>Langkah 2</strong> — x dikalikan 2, jadi hilangkan dengan membagi kedua sisi dengan 2:<br>2x ÷ 2 = 6 ÷ 2 &nbsp;→&nbsp; x = 3',
+  cerita: '<strong>Contoh:</strong> Dedi membeli 2 buku gambar harga sama, ditambah pensil Rp4.000. Totalnya Rp10.000.<br><br>' +
+    '<strong>Langkah 1</strong> — Kurangi total dengan harga pensil dulu, karena harga pensil bukan bagian dari harga buku:<br>Rp10.000 - Rp4.000 = Rp6.000 (ini harga 2 buku)<br><br>' +
+    '<strong>Langkah 2</strong> — Bagi dengan banyaknya buku untuk dapat harga satu buku:<br>Rp6.000 ÷ 2 = Rp3.000',
+  visual: '<strong>Contoh:</strong> 2 balok sama berat + beban 4 kg = beban 10 kg.<br><br>' +
+    '<strong>Langkah 1</strong> — Kurangi beban total dengan beban yang sudah diketahui:<br>10 kg - 4 kg = 6 kg (ini berat 2 balok)<br><br>' +
+    '<strong>Langkah 2</strong> — Bagi dengan banyaknya balok untuk dapat berat satu balok:<br>6 kg ÷ 2 = 3 kg',
+  lanjutan: '<strong>Contoh:</strong> Suatu bilangan dikalikan 2, lalu dikurangi 4, hasilnya 10.<br><br>' +
+    '<strong>Langkah 1</strong> — Karena 4 DIKURANGKAN, hilangkan dengan menambah kedua sisi dengan 4:<br>10 + 4 = 14 (ini hasil bilangan × 2)<br><br>' +
+    '<strong>Langkah 2</strong> — Bagi dengan angka pengalinya:<br>14 ÷ 2 = 7'
+};
+let remedialStep = false;
+
+const MISCONCEPTION_LABEL = {
+  unknown: 'Pola kesalahan tidak umum — perlu dicek manual langkah kerjanya',
+  forgot_divide: 'Lupa membagi dengan koefisien/angka pengali',
+  wrong_order: 'Salah urutan: membagi/mengurangi sebelum langkah pertama selesai',
+  added: 'Salah operasi: menjumlahkan padahal seharusnya mengurangi',
+  wrong_sign: 'Menempel pola lama: tetap mengurangi walau operasi soal berbeda'
+};
+
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function diagnoseAnswer(userVal, v, op){
+  let correct, forgot, order, alt, altType;
+  if(op === 'add'){
+    correct = (v.c - v.b) / v.a; forgot = v.c - v.b; order = Math.floor(v.c / v.a) - v.b; alt = (v.c + v.b) / v.a; altType = 'added';
+  } else {
+    correct = (v.c + v.b) / v.a; forgot = v.c + v.b; order = Math.floor(v.c / v.a) + v.b; alt = (v.c - v.b) / v.a; altType = 'wrong_sign';
+  }
+  if(userVal === correct) return 'correct';
+  if(userVal === forgot) return 'forgot_divide';
+  if(userVal === order) return 'wrong_order';
+  if(userVal === alt) return altType;
+  return 'unknown';
+}
+FEEDBACK_TEMPLATES.unknown = {
+  simbolik: 'Jawabanmu belum sesuai, dan tidak mengikuti pola kesalahan yang biasa terjadi — coba tulis ulang langkahmu satu per satu di kertas. Pastikan kamu mengurangi angka yang menempel pada suku x lebih dulu, baru membagi dengan koefisiennya.',
+  cerita: 'Jawabanmu belum sesuai. Coba tulis dulu persamaannya di kertas sebelum menghitung: (banyak barang)·x + (harga barang lain) = total bayar. Periksa lagi angka mana yang kamu masukkan ke mana.',
+  visual: 'Jawabanmu belum sesuai. Coba tulis dulu persamaannya di kertas: (banyak balok)·x + (beban diketahui) = (beban total). Periksa lagi langkah pengurangan dan pembagianmu.',
+  lanjutan: 'Jawabanmu belum sesuai. Coba tulis dulu persamaannya di kertas sebelum menghitung, dan periksa lagi apakah kamu menambah atau mengurangi di langkah pertama.'
+};
+
+let studentName = "";
+let sessionOrder = shuffle([0,1,2,3,4,5]); // urutan indeks pool dipakai (acak tiap sesi)
+let currentLevel = 0; // index ke LEVELS (0..3)
+let currentAttempt = 0; // 0..2 percobaan dalam level yang sama
+let selectedConfidence = null;
+const levelResults = []; // { level, attempts, mastered, confidence, misconceptions }
+let stoppedEarly = false;
+
+function buildBalanceSVG(a, b, c){
+  const barW = 34, barGap = 8, barH = 55;
+  const sqSize = 15, sqGap = 4, perRow = 5;
+  const trayBottomY = 168, trayTopY = 113;
+
+  const leftTrayX = 40, leftTrayW = 200;
+  const rightTrayX = 280, rightTrayW = 200;
+  const barsStartX = leftTrayX + 12;
+
+  let bars = '';
+  for(let i=0; i<a; i++){
+    const bx = barsStartX + i*(barW+barGap);
+    bars += '<rect x="'+bx+'" y="'+trayTopY+'" width="'+barW+'" height="'+barH+'" rx="7" fill="var(--teal)"/>' +
+            '<text x="'+(bx+barW/2)+'" y="'+(trayTopY+barH/2+7)+'" font-family="Baloo 2, sans-serif" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">x</text>';
+  }
+  const barsEndX = barsStartX + a*(barW+barGap);
+
+  let squares = '';
+  const sqStartX = barsEndX + 12;
+  for(let i=0; i<b; i++){
+    const row = Math.floor(i/perRow), col = i % perRow;
+    const sx = sqStartX + col*(sqSize+sqGap);
+    const sy = trayBottomY - sqSize - row*(sqSize+sqGap);
+    squares += '<rect x="'+sx+'" y="'+sy+'" width="'+sqSize+'" height="'+sqSize+'" rx="3" fill="var(--amber)"/>';
+  }
+
+  const cardW = 80, cardH = 55;
+  const cardX = rightTrayX + (rightTrayW - cardW)/2;
+  const cardY = trayTopY;
+
+  return '<svg viewBox="0 0 520 250" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-height:220px;">' +
+    '<polygon points="260,196 233,234 287,234" fill="var(--ink-soft)" opacity="0.28"/>' +
+    '<rect x="253" y="118" width="14" height="80" rx="4" fill="var(--ink-soft)" opacity="0.28"/>' +
+    '<rect x="40" y="112" width="440" height="9" rx="4.5" fill="var(--ink-soft)" opacity="0.45"/>' +
+    '<circle cx="260" cy="116" r="6" fill="var(--ink-soft)" opacity="0.5"/>' +
+    '<line x1="'+(leftTrayX+20)+'" y1="121" x2="'+(leftTrayX+20)+'" y2="168" stroke="var(--ink-soft)" stroke-width="2.5" opacity="0.6"/>' +
+    '<line x1="'+(leftTrayX+leftTrayW-20)+'" y1="121" x2="'+(leftTrayX+leftTrayW-20)+'" y2="168" stroke="var(--ink-soft)" stroke-width="2.5" opacity="0.6"/>' +
+    '<rect x="'+leftTrayX+'" y="168" width="'+leftTrayW+'" height="10" rx="5" fill="var(--paper)" stroke="var(--line)" stroke-width="1.5"/>' +
+    '<line x1="'+(rightTrayX+20)+'" y1="121" x2="'+(rightTrayX+20)+'" y2="168" stroke="var(--ink-soft)" stroke-width="2.5" opacity="0.6"/>' +
+    '<line x1="'+(rightTrayX+rightTrayW-20)+'" y1="121" x2="'+(rightTrayX+rightTrayW-20)+'" y2="168" stroke="var(--ink-soft)" stroke-width="2.5" opacity="0.6"/>' +
+    '<rect x="'+rightTrayX+'" y="168" width="'+rightTrayW+'" height="10" rx="5" fill="var(--paper)" stroke="var(--line)" stroke-width="1.5"/>' +
+    bars + squares +
+    '<rect x="'+cardX+'" y="'+cardY+'" width="'+cardW+'" height="'+cardH+'" rx="10" fill="var(--amber-dark)"/>' +
+    '<text x="'+(cardX+cardW/2)+'" y="'+(cardY+cardH/2+9)+'" font-family="Space Mono, monospace" font-size="26" font-weight="700" fill="#fff" text-anchor="middle">'+c+'</text>' +
+    '</svg>';
+}
+
+function buildVisual(level, poolIndex, v){
+  const op = level.op;
+  if(level.key === 'simbolik'){
+    const sign = op === 'add' ? '+' : '-';
+    return { visual: v.a + 'x ' + sign + ' ' + v.b + ' = ' + v.c, story:false, prompt:'Berapa nilai x?' };
+  }
+  if(level.key === 'cerita'){
+    const it = STORY_ITEMS[poolIndex];
+    const text = it.actor + ' membeli ' + v.a + ' ' + it.itemA + ' dengan harga sama, ditambah ' + it.itemB + ' seharga Rp' + v.b + '.000. Total ia membayar Rp' + v.c + '.000.';
+    return { visual: text, story:true, prompt:'Berapa harga satu ' + it.itemA + ' (dalam ribuan rupiah)?' };
+  }
+  if(level.key === 'visual'){
+    return { visual: buildBalanceSVG(v.a, v.b, v.c), story:false, isSvg:true, prompt: v.a + ' balok dengan berat sama, ditambah beban ' + v.b + ' kg, seimbang dengan beban ' + v.c + ' kg di sisi lain. Berapa kg berat satu balok (x)?' };
+  }
+  // level 4: lanjutan (abstrak, operasi beda)
+  const text = 'Suatu bilangan jika dikalikan ' + v.a + ', kemudian dikurangi ' + v.b + ', hasilnya adalah ' + v.c + '.';
+  return { visual: text, story:true, prompt:'Berapakah bilangan tersebut?' };
+}
+function buildExplanation(level, v){
+  const op = level.op;
+  if(op === 'add'){
+    const correct = (v.c - v.b) / v.a;
+    if(level.key === 'simbolik') return 'Kurangi kedua sisi dengan ' + v.b + ': ' + v.a + 'x = ' + (v.c - v.b) + '. Lalu bagi kedua sisi dengan ' + v.a + ': x = ' + correct + '.';
+    if(level.key === 'cerita') return 'Kurangi total dengan harga barang lain: Rp' + v.c + '.000 - Rp' + v.b + '.000 = Rp' + (v.c-v.b) + '.000. Lalu bagi dengan banyaknya barang yang harganya sama (' + v.a + '): Rp' + (v.c-v.b) + '.000 ÷ ' + v.a + ' = Rp' + correct + '.000.';
+    return 'Kurangi beban total dengan beban yang diketahui: ' + v.c + ' - ' + v.b + ' = ' + (v.c-v.b) + ' kg. Lalu bagi dengan banyaknya balok (' + v.a + '): ' + (v.c-v.b) + ' ÷ ' + v.a + ' = ' + correct + ' kg.';
+  } else {
+    const correct = (v.c + v.b) / v.a;
+    return 'Jumlahkan dulu ' + v.c + ' + ' + v.b + ' = ' + (v.c+v.b) + '. Lalu bagi dengan ' + v.a + ': ' + (v.c+v.b) + ' ÷ ' + v.a + ' = ' + correct + '.';
+  }
+}
+function buildOptions(v, op){
+  let list;
+  if(op === 'add'){
+    const correct = (v.c - v.b) / v.a, forgot = v.c - v.b, order = Math.floor(v.c / v.a) - v.b, alt = (v.c + v.b) / v.a;
+    list = [ {value:correct,type:'correct'}, {value:forgot,type:'forgot_divide'}, {value:order,type:'wrong_order'}, {value:alt,type:'added'} ];
+  } else {
+    const correct = (v.c + v.b) / v.a, forgot = v.c + v.b, order = Math.floor(v.c / v.a) + v.b, alt = (v.c - v.b) / v.a;
+    list = [ {value:correct,type:'correct'}, {value:forgot,type:'forgot_divide'}, {value:order,type:'wrong_order'}, {value:alt,type:'wrong_sign'} ];
+  }
+  return shuffle(list);
+}
+
+function renderStart(){
+  document.getElementById('questionArea').innerHTML =
+    '<div class="card"><span class="tag">Mulai Aktivitas</span><h2>Sebelum mulai, tulis namamu ya</h2>' +
+    '<label class="field-label">Nama Siswa</label><input type="text" id="nameInput" placeholder="Nama lengkap">' +
+    '<button class="primary" id="startBtn" disabled onclick="startQuiz()">Mulai Mengerjakan</button></div>';
+  document.getElementById('nameInput').addEventListener('input', function(){
+    document.getElementById('startBtn').disabled = this.value.trim() === '';
+  });
+}
+function startQuiz(){
+  studentName = document.getElementById('nameInput').value.trim();
+  document.getElementById('levelTrack').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderLevelTrack(){
+  const track = document.getElementById('levelTrack');
+  track.innerHTML = '';
+  LEVELS.forEach((lv, i)=>{
+    const badge = document.createElement('div'); badge.className = 'level-badge';
+    if(i < levelResults.length){
+      const r = levelResults[i];
+      badge.classList.add(r.mastered ? ('passed-'+r.attempts) : 'failed');
+    } else if(i === currentLevel){
+      badge.classList.add('current');
+    }
+    badge.innerHTML = '<div class="lv-num">Lv' + lv.id + '</div><div class="lv-name">' + lv.shortName + '</div>';
+    track.appendChild(badge);
+  });
+}
+
+function renderQuestion(){
+  renderLevelTrack();
+  const level = LEVELS[currentLevel];
+  const poolIndex = sessionOrder[currentAttempt];
+  const v = POOL[poolIndex];
+  const isRetry = currentAttempt > 0;
+  const built = buildVisual(level, poolIndex, v);
+
+  let html = '<div class="card">';
+  html += '<span class="tag' + (isRetry ? ' retry' : '') + '">' + level.tag + (isRetry ? ' · Percobaan ke-' + (currentAttempt+1) : '') + '</span>';
+  html += '<h2>' + (isRetry ? 'Coba soal sejenis berikut ini:' : (currentLevel > 0 ? 'Level naik! Sekarang coba yang ini:' : 'Selesaikan soal berikut:')) + '</h2>';
+  html += '<div class="visual-box' + (built.story ? ' story' : '') + '">' + built.visual + '</div>';
+  html += '<p class="prompt-text">' + built.prompt + '</p>';
+  if(!isRetry){
+    html += '<label class="field-label">Seberapa yakin kamu dengan jawaban ini nanti?</label><div class="confidence" id="confRow"></div>';
+    html += '<div class="concept-box" id="conceptBox">';
+    html += '<div class="concept-q">🧠 Cek Pemahaman: Langkah pertama apa yang perlu kamu lakukan untuk menghilangkan angka ' + v.b + ' dari suku yang mengandung ' + (level.key==='cerita' ? 'harga satuan' : 'variabel/x') + '?</div>';
+    html += '<div class="concept-options" id="conceptOptions">';
+    shuffle(CONCEPT_OPTIONS).forEach((opt)=>{
+      html += '<button class="concept-btn" data-val="' + opt + '">' + opt + '</button>';
+    });
+    html += '</div><div id="conceptFeedback"></div></div>';
+  }
+  html += '<label class="field-label">Jawabanmu (tulis angka)</label>';
+  html += '<input type="number" class="ans-input" id="ansInput" inputmode="numeric" placeholder="Tulis jawabanmu" ' + (isRetry ? '' : 'disabled') + '>';
+  html += '<button class="primary" id="submitBtn" disabled>Cek Jawabanku</button>';
+  html += '<div id="feedbackArea"></div></div>';
+
+  document.getElementById('questionArea').innerHTML = html;
+  document.getElementById('submitBtn').addEventListener('click', ()=> submitAnswer(level, v));
+
+  let confDone = isRetry, conceptDone = isRetry;
+  function tryEnableAnswer(){
+    if(confDone && conceptDone){
+      document.getElementById('ansInput').disabled = false;
+    }
+  }
+  document.getElementById('ansInput').addEventListener('input', function(){
+    document.getElementById('submitBtn').disabled = this.value.trim() === '' || this.disabled;
+  });
+
+  if(!isRetry){
+    selectedConfidence = null;
+    window.__conceptCorrectThisLevel = null;
+    const confRow = document.getElementById('confRow');
+    faces.forEach((f, idx)=>{
+      const b = document.createElement('div'); b.className = 'conf-btn'; b.innerHTML = f.e + '<small>' + (idx+1) + '</small>';
+      b.onclick = ()=>{
+        selectedConfidence = idx+1;
+        confRow.querySelectorAll('.conf-btn').forEach(x=>x.classList.remove('selected'));
+        b.classList.add('selected');
+        confDone = true;
+        tryEnableAnswer();
+      };
+      confRow.appendChild(b);
+    });
+
+    document.querySelectorAll('.concept-btn').forEach(cbtn=>{
+      cbtn.addEventListener('click', ()=>{
+        document.querySelectorAll('.concept-btn').forEach(b=> b.disabled = true);
+        const chosen = cbtn.getAttribute('data-val');
+        const tmpl = CONCEPT_TEMPLATES[level.op];
+        const correct = chosen === tmpl.correct;
+        cbtn.classList.add(correct ? 'correct-reveal' : 'wrong-reveal');
+        window.__conceptCorrectThisLevel = correct;
+        document.getElementById('conceptFeedback').innerHTML =
+          '<div class="concept-feedback ' + (correct ? 'ok' : 'no') + '">' + (correct ? tmpl.feedbackCorrect : tmpl.feedbackWrong) + '</div>';
+        conceptDone = true;
+        tryEnableAnswer();
+      });
+    });
+  }
+}
+
+function submitAnswer(level, v){
+  const input = document.getElementById('ansInput');
+  const userVal = parseFloat(input.value);
+  input.disabled = true;
+  document.getElementById('submitBtn').disabled = true;
+
+  const type = diagnoseAnswer(userVal, v, level.op);
+  const correct = type === 'correct';
+  const isFinalChance = remedialStep || currentAttempt === 2;
+  const fbArea = document.getElementById('feedbackArea');
+
+  if(correct){
+    const isLastLevel = currentLevel === LEVELS.length - 1;
+    const remedialNote = remedialStep ? '<div class="level-up-box">🎓 Kamu berhasil setelah pembelajaran ulang. Level tetap naik, tapi ini ditandai sebagai "tuntas dengan bantuan tambahan" di hasil akhir.</div>' : '';
+    fbArea.innerHTML = '<div class="feedback ok"><span class="emoji">✅</span><span>Betul! Kamu berhasil mengenali langkah penyelesaian yang tepat.</span></div>' +
+      remedialNote +
+      (isLastLevel ? '<div class="level-up-box">🏆 Ini level tertinggi — kamu berhasil menyelesaikannya!</div>' : '<div class="level-up-box">⬆️ Levelmu naik ke ' + LEVELS[currentLevel+1].tag + '</div>') +
+      '<button class="primary" onclick="finishLevel(true)">' + (isLastLevel ? 'Lihat Hasil Akhir' : 'Lanjut ke Level Berikutnya') + '</button>';
+    return;
+  }
+
+  const diagnosis = FEEDBACK_TEMPLATES[type][level.key];
+  if(!isFinalChance){
+    fbArea.innerHTML = '<div class="feedback no"><span class="emoji">❌</span><span>Belum tepat. Jawabanmu: ' + input.value + '</span></div>' +
+      '<div class="diagnosis-box"><strong>💡 Yang kelihatannya terjadi:</strong>' + diagnosis + '</div>' +
+      '<button class="primary retry-btn" onclick="retrySameLevel(\'' + type + '\')">Coba Soal Serupa</button>';
+  } else if(!remedialStep){
+    fbArea.innerHTML = '<div class="feedback no"><span class="emoji">❌</span><span>Masih belum tepat. Jawabanmu: ' + input.value + '</span></div>' +
+      '<div class="diagnosis-box"><strong>💡 Yang kelihatannya terjadi:</strong>' + diagnosis + '</div>' +
+      '<div class="explain-box"><strong>Cara mengerjakannya: </strong>' + buildExplanation(level, v) + '</div>' +
+      '<button class="primary retry-btn" onclick="enterRemedial()">📖 Belajar Ulang Konsep Ini</button>';
+  } else {
+    fbArea.innerHTML = '<div class="feedback no"><span class="emoji">❌</span><span>Masih belum tepat, meski sudah dibantu pembelajaran ulang. Jawabanmu: ' + input.value + '</span></div>' +
+      '<div class="diagnosis-box"><strong>💡 Yang kelihatannya terjadi:</strong>' + diagnosis + '</div>' +
+      '<div class="explain-box"><strong>Cara mengerjakannya: </strong>' + buildExplanation(level, v) + '</div>' +
+      '<button class="primary" onclick="finishLevel(false)">Lihat Hasil</button>';
+  }
+  window.__pendingMisconception = (type === 'unknown') ? null : type;
+}
+function enterRemedial(){
+  remedialStep = true;
+  renderRemedialQuestion();
+}
+function renderRemedialQuestion(){
+  const level = LEVELS[currentLevel];
+  const v = REMEDIAL_VARIANT;
+  const built = buildVisual(level, 0, v);
+
+  let html = '<div class="card">';
+  html += '<div class="remedial-banner">📖 PEMBELAJARAN ULANG · ' + level.tag + '</div>';
+  html += '<div class="teaching-box"><div class="th">Yuk pelajari ulang cara mengerjakannya:</div>' + TEACHING_EXAMPLES[level.key] + '</div>';
+  html += '<h2>Sekarang giliranmu, coba soal ini:</h2>';
+  html += '<div class="visual-box' + (built.story ? ' story' : '') + '">' + built.visual + '</div>';
+  html += '<p class="prompt-text">' + built.prompt + '</p>';
+  html += '<label class="field-label">Jawabanmu (tulis angka)</label>';
+  html += '<input type="number" class="ans-input" id="ansInput" inputmode="numeric" placeholder="Tulis jawabanmu">';
+  html += '<button class="primary" id="submitBtn" disabled>Cek Jawabanku</button>';
+  html += '<div id="feedbackArea"></div></div>';
+
+  document.getElementById('questionArea').innerHTML = html;
+  document.getElementById('submitBtn').addEventListener('click', ()=> submitAnswer(level, v));
+  document.getElementById('ansInput').addEventListener('input', function(){
+    document.getElementById('submitBtn').disabled = this.value.trim() === '';
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function retrySameLevel(lastType){
+  if(!window.__levelMisconceptions) window.__levelMisconceptions = [];
+  if(lastType) window.__levelMisconceptions.push(lastType);
+  currentAttempt += 1;
+  renderQuestion();
+}
+function finishLevel(mastered){
+  const misconceptions = window.__levelMisconceptions || [];
+  if(!mastered && window.__pendingMisconception) misconceptions.push(window.__pendingMisconception);
+  window.__levelMisconceptions = [];
+  const attemptsUsed = remedialStep ? 4 : currentAttempt + 1;
+  levelResults.push({ level: LEVELS[currentLevel].id, key: LEVELS[currentLevel].key, attempts: attemptsUsed, mastered, confidence: selectedConfidence, misconceptions, conceptCorrect: window.__conceptCorrectThisLevel, remedial: remedialStep });
+  remedialStep = false;
+
+  if(!mastered){
+    stoppedEarly = true;
+    document.getElementById('questionArea').innerHTML = '';
+    renderLevelTrack();
+    showResults();
+    return;
+  }
+  currentLevel += 1; currentAttempt = 0;
+  if(currentLevel < LEVELS.length){ renderQuestion(); }
+  else {
+    document.getElementById('questionArea').innerHTML = '';
+    renderLevelTrack();
+    showResults();
+  }
+}
+
+function formSummaryByKey(key){
+  const r = levelResults.find(x=>x.key===key);
+  if(!r) return { attempts:'-', status:'Belum dicoba', miskonsepsi:'-' };
+  return { attempts: r.attempts, status: r.mastered ? (r.attempts===1?'Langsung paham':'Paham dengan bantuan') : 'Belum paham', miskonsepsi: r.misconceptions.map(t=>MISCONCEPTION_LABEL[t]).join('; ') || '-' };
+}
+function computeFinalLevel(){
+  let furthestMastered = 0; // jumlah level berturut-turut yang mastered dari awal
+  for(let i=0;i<levelResults.length;i++){
+    if(levelResults[i].mastered) furthestMastered++;
+    else break;
+  }
+  if(furthestMastered === 0) return { num:1, label:'Level 1 — Belum Memahami Konsep', desc:'Masih kesulitan di langkah dasar penyelesaian persamaan. Perlu pendampingan langsung dari guru sebelum lanjut berlatih sendiri.' };
+  if(furthestMastered === 1) return { num:2, label:'Level 2 — Memahami Secara Prosedural', desc:'Sudah bisa menyelesaikan bentuk simbolik, tapi belum berhasil memindahkan pemahaman itu ke bentuk soal cerita.' };
+  if(furthestMastered === 2) return { num:3, label:'Level 3 — Mulai Mampu Mentransfer Konsep', desc:'Sudah berhasil di dua bentuk berbeda (simbolik & cerita), tapi belum konsisten saat bentuknya berubah lagi ke visual.' };
+  // furthestMastered === 3 or 4 (semua level dicoba & lulus)
+  if(furthestMastered >= 3 && levelResults.length === 4 && levelResults[3].mastered){
+    const firstTryCount = levelResults.filter(r=>r.attempts===1 && r.mastered).length;
+    if(firstTryCount >= 3){
+      return { num:4, label:'Level 4 — Mampu Mentransfer Konsep Secara Mandiri', desc:'Berhasil menyelesaikan semua bentuk soal, termasuk bentuk yang benar-benar baru, dengan sedikit atau tanpa bantuan.' };
+    }
+    return { num:3, label:'Level 3 — Mulai Mampu Mentransfer Konsep', desc:'Berhasil menyelesaikan semua bentuk soal, tapi masih butuh cukup banyak bantuan untuk sampai ke jawaban benar. Belum sepenuhnya mandiri.' };
+  }
+  return { num:3, label:'Level 3 — Mulai Mampu Mentransfer Konsep', desc:'Sudah berhasil di beberapa bentuk soal, tapi belum tuntas sampai level tertinggi.' };
+}
+
+function sendResultsToTeacher(finalLevel){
+  const statusEl = document.getElementById('sendStatus');
+  if(!GAS_URL){ statusEl.textContent = 'Hasil belum terhubung ke guru (fitur pengiriman belum diaktifkan).'; statusEl.classList.add('warn'); return; }
+  const firstTryCount = levelResults.filter(r=>r.attempts===1 && r.mastered).length;
+  const avgAttempts = levelResults.length ? (levelResults.reduce((a,r)=>a+r.attempts,0) / levelResults.length).toFixed(1) : '0';
+  const payload = {
+    nama: studentName,
+    simbolik: formSummaryByKey('simbolik'), cerita: formSummaryByKey('cerita'), visual: formSummaryByKey('visual'),
+    lanjutan: formSummaryByKey('lanjutan'),
+    firstTry: firstTryCount, avgAttempts: avgAttempts,
+    levelFinal: finalLevel.num, levelLabel: finalLevel.label,
+    hafalTanpaKonsep: levelResults.filter(r=>r.conceptCorrect===false && r.mastered).map(r=>r.key).join(', ') || '-',
+    perluPenjelasanGuru: stoppedEarly && levelResults[levelResults.length-1].remedial ? LEVELS[levelResults.length-1].tag + ' (sudah dicoba remedial, masih gagal)' : (stoppedEarly ? LEVELS[levelResults.length-1].tag : '-'),
+    tuntasViaRemedial: levelResults.filter(r=>r.remedial && r.mastered).map(r=>r.key).join(', ') || '-'
+  };
+  fetch(GAS_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload) })
+    .then(()=>{ statusEl.textContent = '✅ Hasil sudah dikirim ke gurumu.'; statusEl.classList.add('ok'); })
+    .catch(()=>{ statusEl.textContent = '⚠️ Gagal mengirim hasil. Tunjukkan layar ini ke gurumu secara langsung.'; statusEl.classList.add('warn'); });
+}
+
+function showResults(){
+  document.getElementById('results').classList.remove('hidden');
+  const finalLevel = computeFinalLevel();
+  document.getElementById('finalLevelBig').textContent = 'Level ' + finalLevel.num;
+  document.getElementById('finalLevelDesc').textContent = finalLevel.label.split('— ')[1] || finalLevel.label;
+
+  sendResultsToTeacher(finalLevel);
+
+  const journeyBox = document.getElementById('journeyItems');
+  journeyBox.innerHTML = '';
+  LEVELS.forEach((lv,i)=>{
+    const r = levelResults[i];
+    const row = document.createElement('div'); row.className = 'journey-item';
+    let pillClass = 'skip', pillText = 'Belum dicoba';
+    if(r){
+      if(r.mastered && r.remedial){ pillClass='ok2'; pillText='Tuntas via pembelajaran ulang'; }
+      else if(r.mastered && r.attempts===1){ pillClass='ok1'; pillText='Langsung paham'; }
+      else if(r.mastered && r.attempts===2){ pillClass='ok2'; pillText='Paham, 1x bantuan'; }
+      else if(r.mastered && r.attempts===3){ pillClass='ok2'; pillText='Paham, 2x bantuan'; }
+      else if(r.remedial){ pillClass='fail'; pillText='Gagal meski sudah remedial'; }
+      else { pillClass='fail'; pillText='Belum paham'; }
+    }
+    row.innerHTML = '<span>' + lv.tag + '</span><span class="status-pill ' + pillClass + '">' + pillText + '</span>';
+    journeyBox.appendChild(row);
+  });
+
+  const matchBox = document.getElementById('conceptMatchItems');
+  matchBox.innerHTML = '';
+  LEVELS.forEach((lv,i)=>{
+    const r = levelResults[i];
+    const row = document.createElement('div'); row.className = 'concept-match-item';
+    let pillClass = 'skip', pillText = 'Belum dicoba';
+    if(r){
+      const conceptOk = r.conceptCorrect === true;
+      const procOk = r.mastered;
+      if(conceptOk && procOk){ pillClass='both-ok'; pillText='Paham konsep & prosedur'; }
+      else if(!conceptOk && procOk){ pillClass='proc-only'; pillText='Bisa jawab, alasan belum tepat'; }
+      else if(conceptOk && !procOk){ pillClass='concept-only'; pillText='Paham alasan, hitungan meleset'; }
+      else { pillClass='both-no'; pillText='Belum paham keduanya'; }
+    }
+    row.innerHTML = '<span>' + lv.tag + '</span><span class="match-pill ' + pillClass + '">' + pillText + '</span>';
+    matchBox.appendChild(row);
+  });
+
+  const allMiscon = [];
+  levelResults.forEach((r)=>{ const lv = LEVELS.find(l=>l.key===r.key); r.misconceptions.forEach(type=>{ allMiscon.push({ form: lv.shortName, type }); }); });
+  if(allMiscon.length > 0){
+    document.getElementById('misconceptionBox').classList.remove('hidden');
+    const container = document.getElementById('misconceptionItems'); container.innerHTML = '';
+    allMiscon.forEach(m=>{ const div = document.createElement('div'); div.className = 'misconception-item'; div.innerHTML = '<strong>' + m.form + '</strong>' + MISCONCEPTION_LABEL[m.type]; container.appendChild(div); });
+  }
+
+  let msg = '<p>' + finalLevel.desc + '</p>';
+  if(stoppedEarly){
+    const stuckLevel = LEVELS[levelResults.length-1];
+    const lastResult = levelResults[levelResults.length-1];
+    if(lastResult.remedial){
+      msg += '<p>Aplikasi sudah mencoba mengajarkan ulang konsep <strong>' + stuckLevel.tag + '</strong> dengan contoh dan latihan tambahan, tapi kamu masih kesulitan. Ini pertanda kamu butuh penjelasan langsung dari gurumu — tunjukkan hasil ini ke gurumu ya.</p>';
+    } else {
+      msg += '<p>Aktivitas berhenti di <strong>' + stuckLevel.tag + '</strong>. Tunjukkan hasil ini ke gurumu untuk dijelaskan ulang khusus bagian ini, sebelum mencoba level berikutnya.</p>';
+    }
+  } else {
+    msg += '<p>Kamu berhasil menyelesaikan seluruh level hari ini. 🎉</p>';
+  }
+  const hafalTanpaKonsep = levelResults.filter(r=> r.conceptCorrect === false && r.mastered);
+  if(hafalTanpaKonsep.length > 0){
+    const names = hafalTanpaKonsep.map(r=> LEVELS.find(l=>l.key===r.key).shortName).join(', ');
+    msg += '<p>🔍 Di bagian <strong>' + names + '</strong>, jawabanmu benar tapi alasan langkahnya belum tepat. Ini penting: coba jelaskan ke gurumu MENGAPA kamu memilih langkah itu, bukan cuma apa jawabannya — supaya kamu tidak hanya menebak pola.</p>';
+  }
+  const overconfident = levelResults.filter(r=> r.confidence >= 4 && r.attempts > 1);
+  if(overconfident.length > 0){
+    const names = overconfident.map(r=> LEVELS.find(l=>l.key===r.key).shortName).join(', ');
+    msg += '<p>⚠️ Di bagian <strong>' + names + '</strong>, kamu merasa cukup yakin tapi ternyata masih perlu bantuan. Coba tulis ulang langkahmu di kertas untuk lebih jeli mengecek jawaban sendiri.</p>';
+  }
+  document.getElementById('insightText').innerHTML = msg;
+}
+
+renderStart();
+</script>
+</body>
+</html>
